@@ -29,7 +29,7 @@ def get_faller_symbol(row, col, faller):
     r = faller['row']
     l_col = faller['left_col']
     r_col = faller['right_col']
-    l = faller['left_color']
+    l_color = faller['left_color']
     r_color = faller['right_color']
     state = faller['state']
     parity = faller['parity']
@@ -37,10 +37,12 @@ def get_faller_symbol(row, col, faller):
     if row == r:
         if parity == 'even':
                 if col == l_col:
-                    return f"{'[' if state == 'falling' else '|'}{l}--"
+                    return f"{'[' if state == 'falling' else '|'}{l_color}-"
                 elif col == r_col:
-                    return f"{r_color}{']' if state == 'falling' else '|'}"
+                    return f"-{r_color}{']' if state == 'falling' else '|'}"
         else:
             if col == l_col:
-                return f"{'[' if state == 'falling' else '|'}{l}-{r}{']' if state == 'falling' else '|'}"
+                return f"{'[' if state == 'falling' else '|'}{l_color}-"
+            elif col == r_col:
+                return f"-{r_color}{']' if state == 'falling' else '|'}"
     return None

@@ -22,8 +22,8 @@ class Game:
         left, right = parts[1], parts[2]
         
         if self.cols % 2 == 1:
-            left_col = self.cols // 2 
-            right_col = left_col
+            left_col = self.cols // 2 - 1
+            right_col = self.cols // 2
             parity = 'odd'
             print('odd')
         else:
@@ -53,13 +53,15 @@ class Game:
         if row + 1 < self.rows and self.field[row + 1][left_col] == ' ' and self.field[row + 1][right_col] == ' ':
             self.faller['row'] += 1
             self.faller['state'] == 'falling'
+            print('falling')
         elif self.faller['state'] == 'falling':
             self.faller['state'] = 'landed'
+            print('landed')
         elif self.faller['state'] == 'landed':
             self.freeze_faller()
+            #self.faller['state'] = 'frozen'
+            print('frozen')
                     
-        
-
     def land_faller(self):
         row = self.faller['row']
         left_col = self.faller['left_col']
@@ -82,7 +84,8 @@ class Game:
             self.field[row][left_col] = f"{left_color}-"
             self.field[row][right_col] = f"-{right_color}"
         else:
-            self.field[row][left_col] = f"{left_color}-{right_color}"
+            self.field[row][left_col] = f"{left_color}"
+            self.field[row][right_col] = f"{right_color}"
 
 
         self.faller = None
