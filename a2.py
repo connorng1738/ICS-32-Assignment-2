@@ -2,6 +2,9 @@ from game import Game
 from ui import UI
 
 def main ():
+    """
+    Starts the game, handles setup and user commands.
+    """
     rows = int(input(""))
     cols = int(input(""))  
 
@@ -10,7 +13,7 @@ def main ():
     config = input("")
 
     if config == "CONTENTS":
-        contents = []
+        contents = [] #should i split this into a function 
         for i in range(rows):
             line = input()
             contents.append(list(line))
@@ -31,7 +34,16 @@ def main ():
         if not command:
             game.apply_gravity()
         if command.startswith("A"):
-            pass
+            game.rotate_clockwise()
+        if command.startswith("B"):
+            game.rotate_counter()
+        if command.startswith("<"):
+            game.move_left()
+        if command.startswith(">"):
+            game.move_right()
+        if command.startswith("V"):
+            game.create_virus(command)
+        
 
 if __name__ == "__main__":
     main()
