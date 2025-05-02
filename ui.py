@@ -25,14 +25,14 @@ class UI:
                 if cell == ' ':
                     print('   ', end='')
                 elif cell in 'rby':
-                    print(f' {cell} ', end='') 
+                    print(f'{cell:^3}', end='') 
                 elif c + 1 < state.cols and cell.endswith('-') and state.field[r][c + 1].startswith('-'):
                     combined = f'{cell}{state.field[r][c + 1]}'
                     print(f"{combined:^6}", end = '')
-                    c += 2
+                    c += 2 #this is probably the issue
                     continue
                 else:
-                    print(f'  {cell}', end='')  
+                    print(f'{cell:^3}', end='')  
                 
                 c += 1
             print('|')
@@ -62,20 +62,39 @@ def get_faller_symbol(row: int, col: int, faller: dict) -> str:
     state = faller['state']
     parity = faller['parity']
     rotation = faller['rotation']
-
-    if rotation == 0:
-        return get_rotation_0(r, l_col, r_col, l_color, r_color, state, parity, row, col)
-
-    elif rotation == 1:
-        return get_rotation_1(r, l_col, l_color, r_color, state, row, col)
-    elif rotation == 2:
-        return get_rotation_2(r, l_col, r_col, l_color, r_color, state, parity, row, col)
     
-    elif rotation == 3:
-        return get_rotation_3(r, l_col, l_color, r_color, state, row, col)
+    return get_rotation(rotation, r, l_col, r_col, l_color, r_color, state, parity, row, col)
 
+def match_viruses(state: Game) -> None:
+    for r in range(state.rows):
+        for c in range(state.cols):
+            if state.field[r][c] in 'rby':
+                if check_match(state, r, c):
+                    state.field[r][c] = ' ' \
+                    ''
+def check_match(state: Game, r: int, c: int) -> bool:
 
-def get_rotation_0(r: int, l_col: int, r_col: int, l_color: str, r_color:str, state:str, parity: str, row: int, col: int) -> str:
+    virus = state.field[r][c]
+
+    if c + 1 < state.cols and state.field[r][c + 1] == virus:
+        return True
+    if r + 1 < state.cols and state.field[r][c + 1] == virus:
+        return True
+    return False
+
+def get_rotation(rotation, r, l_col, r_col, l_color, r_color, state, parity, row, col):
+    if rotation == 0:
+        return _rotate_0(r, l_col, r_col, l_color, r_color, state, parity, row, col)
+
+    elif rotation == 90:
+        return _rotate_90(r, l_col, l_color, r_color, state, row, col)
+    elif rotation == 180:
+        return _rotate_180(r, l_col, r_col, l_color, r_color, state, parity, row, col)
+    
+    elif rotation == 270:
+        return _rotate_270(r, l_col, l_color, r_color, state, row, col)
+    
+def _rotate_0(r: int, l_col: int, r_col: int, l_color: str, r_color:str, state:str, parity: str, row: int, col: int) -> str: 
     """
     Returns the symbol of a faller rotated at 0 degrees (default position)
     
@@ -96,17 +115,37 @@ def get_rotation_0(r: int, l_col: int, r_col: int, l_color: str, r_color:str, st
     if row == r:
         if parity == 'even':
                 if col == l_col:
-                    return f"{'[' if state == 'falling' else '|' if state == 'landed' else ' '}{l_color}-"
+                    if state == 'falling':
+                        return f"[{l_color}-"
+                    elif state == 'landed':
+                        return f"|{l_color}-"
+                    else:
+                        return f"{l_color}-"
                 elif col == r_col:
-                    return f"-{r_color}{']' if state == 'falling' else '|' if state == 'landed' else ' '}"
+                    if state == 'falling':
+                        return f"-{r_color}]"
+                    elif state == 'landed':
+                        return f"-{r_color}|"
+                    else:
+                        return f"-{r_color}"
         else:
             if col == l_col:
-                return f"{'[' if state == 'falling' else '|' if state == 'landed' else ' '}{l_color}-"
+                if state == 'falling':
+                    return f"[{l_color}-"
+                elif state == 'landed':
+                    return f"|{l_color}]-"
+                else:
+                    return f" {l_color}-"
             elif col == r_col:
-                return f"-{r_color}{']' if state == 'falling' else '|' if state == 'landed' else ' '}"
+                if state == 'falling':
+                    return f"-{r_color}]"
+            elif state == 'landed':
+                return f"-{r_color}|"
+            else:
+                return f"-{r_color}"
     return None
 
-def get_rotation_1(r: int, l_col: int, l_color: str, r_color: str, state: str, row: int, col: int) -> str:
+def _rotate_90(r: int, l_col: int, l_color: str, r_color: str, state: str, row: int, col: int) -> str:
     """
     Returns the symbol of a faller rotated at 90 degrees (rotated position)
     
@@ -126,12 +165,22 @@ def get_rotation_1(r: int, l_col: int, l_color: str, r_color: str, state: str, r
     
     if col == l_col:
             if row == r - 1:
-                return f"{'[' if state == 'falling' else '|' if state == 'landed' else '|' if state == 'landed' else ' '}{r_color}{']' if state == 'falling' else '|' if state == 'landed' else ' '}"
+                if state == 'falling':
+                    return f"[{l_color}]"
+                elif state == 'landed':
+                    return f"|{l_color}|"
+                else:
+                    return f"{l_color}"
             if row == r:
-                return f"{'[' if state == 'falling' else '|' if state == 'landed' else '|' if state == 'landed' else ' '}{l_color}{']' if state == 'falling' else '|' if state == 'landed' else ' '}"
+                if state == 'falling':
+                    return f"[{r_color}]"
+                elif state == 'landed':
+                    return f"|{r_color}|"
+                else:
+                    return f"{r_color}"
     return None
-    
-def get_rotation_2(r: int, l_col: int, r_col: int, l_color: str, r_color:str, state:str, parity: str, row: int, col: int) -> str:
+ 
+def _rotate_180(r: int, l_col: int, r_col: int, l_color: str, r_color:str, state:str, parity: str, row: int, col: int) -> str:
     """
     Returns the symbol of a faller rotated at 180 degrees (rotated position)
     
@@ -149,21 +198,41 @@ def get_rotation_2(r: int, l_col: int, r_col: int, l_color: str, r_color:str, st
     Returns:
       str: Symbol of faller piece at given position
     """
-
     if row == r:
         if parity == 'even':
-            if col == l_col:
-                return f"{'[' if state == 'falling' else '|' if state == 'landed' else ' '}{r_color}-"
-            elif col == r_col:
-                return f"-{l_color}{']' if state == 'falling' else '|' if state == 'landed' else ' '}"
+                if col == l_col:
+                    if state == 'falling':
+                        return f"[{r_color}-"
+                    elif state == 'landed':
+                        return f"|{r_color}-"
+                    else:
+                        return f"{r_color}-"
+                elif col == r_col:
+                    if state == 'falling':
+                        return f"-{l_color}]"
+                    elif state == 'landed':
+                        return f"-{l_color}|"
+                    else:
+                        return f"-{l_color}"
         else:
             if col == l_col:
-                return f"{'[' if state == 'falling' else '|' if state == 'landed' else ' '}{r_color}-"
+                if state == 'falling':
+                    return f"[{r_color}-"
+                elif state == 'landed':
+                    return f"|{r_color}]-"
+                else:
+                    return f"{r_color}-"
             elif col == r_col:
-                return f"-{l_color}{']' if state == 'falling' else '|' if state == 'landed' else ' '}"
+                if state == 'falling':
+                    return f"-{l_color}]"
+            elif state == 'landed':
+                return f"-{l_color}|"
+            else:
+                return f"-{l_color}"
+            
     return None
 
-def get_rotation_3(r: int, l_col: int, l_color: str, r_color: str, state: str, row: int, col: int) -> str:
+def _rotate_270(r: int, l_col: int, l_color: str, r_color: str, state: str, row: int, col: int) -> str:
     """
     Returns the symbol of a faller rotated at 270 degrees (rotated position)
     
@@ -180,12 +249,22 @@ def get_rotation_3(r: int, l_col: int, l_color: str, r_color: str, state: str, r
     Returns:
       str: Symbol of faller piece at given position
     """
-
     if col == l_col:
             if row == r - 1:
-                return f"{'[' if state == 'falling' else '|' if state == 'landed' else '|' if state == 'landed' else ' '}{l_color}{']' if state == 'falling' else '|' if state == 'landed' else ' '}"
+                if state == 'falling':
+                    return f"[{r_color}]"
+                elif state == 'landed':
+                    return f"|{r_color}|"
+                else:
+                    return f"{r_color}"
             if row == r:
-                return f"{'[' if state == 'falling' else '|' if state == 'landed' else '|' if state == 'landed' else ' '}{r_color}{']' if state == 'falling' else '|' if state == 'landed' else ' '}"
-    return None       
+                if state == 'falling':
+                    return f"[{l_color}]"
+                elif state == 'landed':
+                    return f"|{l_color}|"
+                else:
+                    return f"{l_color}"
+    return None
+
     
 

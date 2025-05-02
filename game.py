@@ -26,6 +26,7 @@ class Game:
         Returns:
           list[list]: 2D array with user-specified configuration
         """
+
         self.field = [[' ' for _ in range(self.cols)] for _ in range(self.rows)]
         for r in range(self.rows):
             for c in range(self.cols):
@@ -94,6 +95,8 @@ class Game:
 
         if not self.faller:
             return
+        
+        print("Freeze", self.faller)
 
         row = self.faller['row']
         left_col = self.faller['left_col']
@@ -105,15 +108,15 @@ class Game:
         if rotation == 0:
             self.field[row][left_col] = f"{left_color}-"
             self.field[row][right_col] = f"-{right_color}"
-        if rotation == 1:
+        if rotation == 90:
             self.field[row - 1][left_col] = f"{left_color}"
-            self.field[row][left_col] = f"{right_color}"
-        if rotation == 2:
-            self.field[row][left_col] = f"{left_color}-"
-            self.field[row][right_col] = f"-{right_col}"
-        if rotation == 3:
+            self.field[row][left_col] = f"{right_color} "
+        if rotation == 180:
             self.field[row][left_col] = f"{right_color}-"
             self.field[row][right_col] = f"-{left_color}"
+        if rotation == 270:
+            self.field[row - 1][left_col] = f"{right_color}"
+            self.field[row][left_col] = f"{left_color}"
 
 
         self.faller = None
@@ -130,19 +133,20 @@ class Game:
             for cell in row:
                 if cell in ['r', 'y', 'b']:
                     return False
-        return True
+                else:
+                    return True
 
     def rotate_clockwise(self) -> None:
         """
         Rotates faller clockwise, and keeps track of rotated position
         """
-        self.faller['rotation'] = (self.faller['rotation'] + 1) % 4
+        self.faller['rotation'] = (self.faller['rotation'] + 90) % 360
 
     def rotate_counter(self) -> None: #should i check if the position is available
         """
         Rotates faller counter clockwise, and keeps track of rotated position
         """
-        self.faller['rotation'] = (self.faller['rotation'] + 3) % 4
+        self.faller['rotation'] = (self.faller['rotation'] + 270) % 360
     
     def move_left(self) -> bool:
         """
@@ -178,10 +182,11 @@ class Game:
         right_col = self.faller['right_col']
         row = self.faller['row']
         
-        print('l ' + str(left_col))
-        print('r ' + str(right_col))
+        print('l' + str(left_col))
+        print('r' + str(right_col))
         if right_col < self.cols - 1:
             if self.field[row][left_col + 1] == ' ' and self.field[row][right_col + 1] == ' ':
+                pass
                 self.faller['left_col'] += 1
                 self.faller['right_col'] += 1
         return True
@@ -193,9 +198,45 @@ class Game:
         parts = shlex.split(command)
         row = int(parts[1])
         col = int(parts[2])
-        color = parts[3]
+        color = parts[3].lower()
 
         self.field[row][col] = color
+
+    def find_matches(self) -> bool:
+        match = False
+        for row in self.rows:
+            for col in self.cols:
+                if self.field[row][col] in 'ryb':
+                    if self.find_horizontal_match(row, col):
+                        match = True
+                    if self.find_vertical_match(row, col):
+                        match = True
+        return match
+
+
+    def find_horizontal_match(self, row: int, col: int) -> bool:
+        color = self.field[row][col]
+        if col + 3 < self.cols:
+            for i in range(1, 4):
+                if self.field[row][col + i] != color:
+                    return False
+            
+            for i in range(4):
+                self.field[row][col + i] = f'*{color}*'
+            return True
+        return False
+
+    def find_vertical_match(self, row: int, col: int) -> bool:
+       color = self.field[row][col]
+       if row + 3 < self.rows:
+            for i in range(1, 4):
+                if self.field[row][col + i] != color:
+                    return False
+            for i in range(4):
+                self.field[row + i][col] = f'*{color}*'
+            return True
+       return False
+    
 
 
 
