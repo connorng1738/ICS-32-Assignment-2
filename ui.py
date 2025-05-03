@@ -29,7 +29,7 @@ class UI:
                 elif c + 1 < state.cols and cell.endswith('-') and state.field[r][c + 1].startswith('-'):
                     combined = f'{cell}{state.field[r][c + 1]}'
                     print(f"{combined:^6}", end = '')
-                    c += 2 #this is probably the issue
+                    c += 2 #this is probably the issue - probably have to redo this
                     continue
                 else:
                     print(f'{cell:^3}', end='')  
@@ -66,12 +66,13 @@ def get_faller_symbol(row: int, col: int, faller: dict) -> str:
     return get_rotation(rotation, r, l_col, r_col, l_color, r_color, state, parity, row, col)
 
 def match_viruses(state: Game) -> None:
-    for r in range(state.rows):
+    """for r in range(state.rows):
         for c in range(state.cols):
             if state.field[r][c] in 'rby':
                 if check_match(state, r, c):
-                    state.field[r][c] = ' ' \
-                    ''
+                    state.field[r][c] = ' ' """
+    Game.find_matches(state)
+                
 def check_match(state: Game, r: int, c: int) -> bool:
 
     virus = state.field[r][c]
@@ -82,7 +83,7 @@ def check_match(state: Game, r: int, c: int) -> bool:
         return True
     return False
 
-def get_rotation(rotation, r, l_col, r_col, l_color, r_color, state, parity, row, col):
+def get_rotation(rotation: int, r: int, l_col: int, r_col: int, l_color: str, r_color:str, state:str, parity: str, row: int, col: int):
     if rotation == 0:
         return _rotate_0(r, l_col, r_col, l_color, r_color, state, parity, row, col)
 
@@ -267,4 +268,3 @@ def _rotate_270(r: int, l_col: int, l_color: str, r_color: str, state: str, row:
     return None
 
     
-

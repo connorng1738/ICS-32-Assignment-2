@@ -16,15 +16,12 @@ class Game:
         """
         return [[' ' for _ in range(self.cols)] for _ in range(self.rows)]
     
-    def create_content_field(self, contents: list) -> list[list]: #work on this once you figure out empty field
+    def create_content_field(self, contents: list) -> None: #work on this once you figure out empty field
         """
         Given lines of input, initializes a field with specific content
 
         Arguments:
           contents: list of lines from user input #maybe be more specific later
-
-        Returns:
-          list[list]: 2D array with user-specified configuration
         """
 
         self.field = [[' ' for _ in range(self.cols)] for _ in range(self.rows)]
@@ -88,7 +85,7 @@ class Game:
             self.freeze_faller()
             print('frozen')
 
-    def freeze_faller(self) -> None:
+    def freeze_faller(self) -> None: #perhaps move this to ui.py
         """
         When faller is frozen, saves faller instance onto field.
         """
@@ -110,7 +107,7 @@ class Game:
             self.field[row][right_col] = f"-{right_color}"
         if rotation == 90:
             self.field[row - 1][left_col] = f"{left_color}"
-            self.field[row][left_col] = f"{right_color} "
+            self.field[row][left_col] = f"{right_color}"
         if rotation == 180:
             self.field[row][left_col] = f"{right_color}-"
             self.field[row][right_col] = f"-{left_color}"
@@ -142,13 +139,13 @@ class Game:
         """
         self.faller['rotation'] = (self.faller['rotation'] + 90) % 360
 
-    def rotate_counter(self) -> None: #should i check if the position is available
+    def rotate_counter(self) -> None: #implement a method later to check if position is available
         """
         Rotates faller counter clockwise, and keeps track of rotated position
         """
         self.faller['rotation'] = (self.faller['rotation'] + 270) % 360
     
-    def move_left(self) -> bool:
+    def move_left(self) -> bool: #have to fix logic, why is the empty cell not actually empty
         """
         Shifts faller to the left if adjacent cell is available
 
@@ -168,7 +165,7 @@ class Game:
                 self.faller['right_col'] -= 1
         return True
     
-    def move_right(self) -> bool:
+    def move_right(self) -> bool: #when moving right, why is the empty cell not actually empty
         """
         Shifts faller to the right if adjacent cell is available
 
@@ -185,8 +182,7 @@ class Game:
         print('l' + str(left_col))
         print('r' + str(right_col))
         if right_col < self.cols - 1:
-            if self.field[row][left_col + 1] == ' ' and self.field[row][right_col + 1] == ' ':
-                pass
+            if self.field[row][left_col + 1] == ' ' and self.field[row][right_col + 1] == ' ': #this logic works for a horizontal faller
                 self.faller['left_col'] += 1
                 self.faller['right_col'] += 1
         return True
@@ -206,7 +202,7 @@ class Game:
         match = False
         for row in self.rows:
             for col in self.cols:
-                if self.field[row][col] in 'ryb':
+                if str(self.field[row][col]).lower() in 'ryb':
                     if self.find_horizontal_match(row, col):
                         match = True
                     if self.find_vertical_match(row, col):
@@ -226,7 +222,7 @@ class Game:
             return True
         return False
 
-    def find_vertical_match(self, row: int, col: int) -> bool:
+    def find_vertical_match(self, row: int, col: int) -> bool: 
        color = self.field[row][col]
        if row + 3 < self.rows:
             for i in range(1, 4):
